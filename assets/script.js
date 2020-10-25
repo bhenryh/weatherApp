@@ -1,4 +1,6 @@
 $(document).ready(function () {
+
+    // Global variables:
     var searchHistory = [];
     var appid = "99ea83ab5edd87db522c57b59c0eb8cc";
     var $searchInput = $(".search input");
@@ -7,10 +9,11 @@ $(document).ready(function () {
     var $detailsMain = $(".detailsMain");
     var $forecast = $(".forecast");
 
+    // Retrieves search history from local storage?
     function getHistory() {
         var historyStore = JSON.parse(localStorage.getItem("history"));
         if (historyStore) searchHistory = historyStore;
-
+        // Appends latest searches with history from local storage?
         $history.find("a").remove();
         searchHistory.forEach(function (item) {
             // console.log(item);
@@ -18,15 +21,18 @@ $(document).ready(function () {
         });
 
     }
-
-    function formatDate(dateTime){
-        var formattedDate = new Date( dateTime * 1000 ).toLocaleDateString();        return formattedDate; 
+    // Format date and time:
+    function formatDate(dateTime) {
+        var formattedDate = new Date(dateTime * 1000).toLocaleDateString(); return formattedDate;
     }
-
+    // Retrieve current weather and send info needed to retrieve UV info:
     function getCurrentWeather(city) {
         // console.log(city);
 
-        var queryUrl = "http://api.openweathermap.org/data/2.5/weather?appid=" + appid + "&units=imperial&q=" + city;
+        var queryUrl="http://api.openweathermap.org/data/2.5/weather?&appid=" + appid + "&units=imperial&q="  + city;
+
+
+        // var queryUrl = "http://api.openweathermap.org/data/2.5/weather?appid=" + appid + "&units=imperial&q=" + city;
         $.ajax({
             url: queryUrl,
             method: "GET"
@@ -42,7 +48,6 @@ $(document).ready(function () {
             $detailsMain.find(".uv span").attr("class", "").text("");
             getUV(res.coord.lat, res.coord.lon);
 
-
             $detailsMain.show();
 
             if (searchHistory.indexOf(city) < 0) {
@@ -56,7 +61,7 @@ $(document).ready(function () {
             console.log("error");
         });
     }
-
+    // Retrieve UV data through another api call, 'lat' and 'lon' info coming from currentWeather object:
     function getUV(lat, lon) {
         console.log(city);
 
@@ -79,7 +84,7 @@ $(document).ready(function () {
             console.log("error");
         });
     }
-
+    // Retrieve five-day forecast info:
     function get5DayWeather(city) {
         console.log(city);
 
@@ -110,15 +115,14 @@ $(document).ready(function () {
             console.log("error");
         });
     }
-
+    // ???????????
     $searchBtn.on("click", function () {
         if ($searchInput.val()) {
             getCurrentWeather($searchInput.val());
             $searchInput.val("");
         }
     });
-
-
+    // ???????????
     $history.on("click", ".historyItem", function () {
         if ($(this).attr("data-city")) {
             getCurrentWeather($(this).attr("data-city"));
