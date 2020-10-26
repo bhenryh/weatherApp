@@ -9,11 +9,10 @@ $(document).ready(function () {
     var $detailsMain = $(".detailsMain");
     var $forecast = $(".forecast");
 
-    // Retrieves search history from local storage?
+    // Retrieve search history from local storage and appends new searches to search history:
     function getHistory() {
         var historyStore = JSON.parse(localStorage.getItem("history"));
         if (historyStore) searchHistory = historyStore;
-        // Appends latest searches with history from local storage?
         $history.find("a").remove();
         searchHistory.forEach(function (item) {
             // console.log(item);
@@ -25,23 +24,20 @@ $(document).ready(function () {
     function formatDate(dateTime) {
         var formattedDate = new Date(dateTime * 1000).toLocaleDateString(); return formattedDate;
     }
-    // Retrieve current weather and send info needed to retrieve UV info:
+    // Retrieve current weather and calling UV function:
     function getCurrentWeather(city) {
         // console.log(city);
 
-        var queryUrl="http://api.openweathermap.org/data/2.5/weather?&appid=" + appid + "&units=imperial&q="  + city;
-
-
-        // var queryUrl = "http://api.openweathermap.org/data/2.5/weather?appid=" + appid + "&units=imperial&q=" + city;
+        var queryUrl = "https://api.openweathermap.org/data/2.5/weather?appid=" + appid + "&units=imperial&q=" + city;
         $.ajax({
             url: queryUrl,
             method: "GET"
         }).then(function (res) {
-            // console.log(res);
+            console.log(res);
 
             $detailsMain.find(".city").text(city);
             $detailsMain.find(".date").text(formatDate(res.dt));
-            $detailsMain.find(".icon").attr("src", "http//openweathermap.org/img/w/" + res.weather[0].icon + "png");
+            $detailsMain.find(".icon").attr("src", "https://openweathermap.org/img/w/" + res.weather[0].icon + ".png");
             $detailsMain.find(".temp span").text(res.main.temp);
             $detailsMain.find(".humid span").text(res.main.humidity);
             $detailsMain.find(".wind span").text(res.wind.speed);
@@ -61,11 +57,10 @@ $(document).ready(function () {
             console.log("error");
         });
     }
-    // Retrieve UV data through another api call, 'lat' and 'lon' info coming from currentWeather object:
+    // Retrieve UV data, 'lat' and 'lon' info coming from currentWeather:
     function getUV(lat, lon) {
-        console.log(city);
 
-        var queryUrl = "http://api.openweathermap.org/data/2.5/uvi?appid=" + appid + "&lat=" + lat + "&lon=" + lon;
+        var queryUrl = "https://api.openweathermap.org/data/2.5/uvi?appid=" + appid + "&lat=" + lat + "&lon=" + lon;
         $.ajax({
             url: queryUrl,
             method: "GET"
@@ -74,9 +69,9 @@ $(document).ready(function () {
 
             $detailsMain.find(".uv span").text(res.value);
             if (res.value > 7) {
-                $detailsMain.find(".uv span").addClasss("bg-danger").addClass("text-white");
+                $detailsMain.find(".uv span").addClass("bg-danger").addClass("text-white");
             } else if (res.value > 5) {
-                $detailsMain.find(".uv span").addClasss("bg-warning");
+                $detailsMain.find(".uv span").addClass("bg-warning");
             } else {
                 $detailsMain.find(".uv span").addClass("bg-success");
             }
@@ -88,7 +83,7 @@ $(document).ready(function () {
     function get5DayWeather(city) {
         console.log(city);
 
-        var queryUrl = "http://api.openweathermap.org/data/2.5/forecast?appid=" + appid + "&units=imperial&q=" + city;
+        var queryUrl = "https://api.openweathermap.org/data/2.5/forecast?appid=" + appid + "&units=imperial&q=" + city;
         $.ajax({
             url: queryUrl,
             method: "GET"
@@ -101,32 +96,30 @@ $(document).ready(function () {
             // console.log(filteredList);
 
             filteredList.forEach(function (date, i) {
-                // $(".day" + (i + 1)).find(".date").text(date.dt_txt.slice(0, date.dt_txt.indexOf(" ")));
+                $(".day" + (i + 1)).find(".date").text(date.dt_txt.slice(0, date.dt_txt.indexOf(" ")));
                 $(".day" + (i + 1)).find(".date").text(formatDate(date.dt));
-                $(".day" + (i + 1)).find(".icon").attr("src", "http//openweathermap.org/img/w/" + date.weather[0].icon + "png");
+                $(".day" + (i + 1)).find(".icon").attr("src", "https://openweathermap.org/img/w/" + date.weather[0].icon + ".png");
                 $(".day" + (i + 1)).find(".temp span").text(date.main.temp);
                 $(".day" + (i + 1)).find(".humid span").text(date.main.humidity);
 
             });
-
 
             $forecast.show();
         }).catch(function (err) {
             console.log("error");
         });
     }
-    // ???????????
+    // Create click event on search button:
     $searchBtn.on("click", function () {
         if ($searchInput.val()) {
             getCurrentWeather($searchInput.val());
             $searchInput.val("");
         }
     });
-    // ???????????
+    // Create click event for recent searches list:
     $history.on("click", ".historyItem", function () {
         if ($(this).attr("data-city")) {
             getCurrentWeather($(this).attr("data-city"));
-
         }
     });
 
